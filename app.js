@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
@@ -6,6 +8,7 @@ var mongoose = require('mongoose');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
+var authRouter = require('./routes/auth');
 
 var app = express();
 
@@ -17,7 +20,10 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
+app.use('/auth', authRouter);
 
-mongoose.connect('mongodb://127.0.0.1:27017', { useUnifiedTopology: true, useNewUrlParser: true }, () => console.log('Connect to db'));
+mongoose.connect('mongodb://127.0.0.1:27017', { useUnifiedTopology: true, useNewUrlParser: true })
+    .then(() => console.log('Connect to mongodb'))
+    .catch((error) => console.log(error.message));
 
 module.exports = app;
