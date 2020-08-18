@@ -1,7 +1,6 @@
 const express = require('express');
-const jwt = require('jsonwebtoken');
-
 const router = express.Router();
+const authorization = require('../middlewares/authorization');
 
 const data = [
   {
@@ -16,26 +15,8 @@ const data = [
   },
 ];
 
-router.get('/info', authToken, function (req, res, next) {
+router.get('/info', authorization, function (req, res) {
   res.json(data.filter(item => item.username == req.user.username));
 });
-
-function authToken(req, res, next) {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
-
-  if (token == null) {
-    return res.sendStatus(401);
-  }
-
-  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
-    if (err) {
-      res.sendStatus(403);
-    }
-
-    req.user = user;
-    next();
-  })
-};
 
 module.exports = router;
