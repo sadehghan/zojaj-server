@@ -12,25 +12,26 @@ router.get('/', authorization, async function (req, res) {
   }
 });
 
-router.get('/:source/', authorization, async function (req, res) {
+router.get('/filter/', authorization, async function (req, res) {
   try {
-    let feeds = await Feed.find({ source: req.params.source }).skip((req.body.page - 1) * req.body.limit).limit(req.body.limit);
+    let feeds = await Feed.find({ source: req.body.source }).skip((req.body.page - 1) * req.body.limit).limit(req.body.limit);
     res.status(201).json(feeds);
   } catch (error) {
     res.status(401).send(error.message);
   }
 });
 
-router.get('/top/', authorization, async function (req, res) {
+router.get('/top', authorization, async function (req, res) {
   try {
+    console.log('salamamamammamama');
     let feeds = await Feed.find({}).sort({ likesNo: -1 }).limit(req.body.limit);
-    res.status(201).json(feeds);
+    res.status(202).json(feeds);
   } catch (error) {
     res.status(401).send(error.message);
   }
 });
 
-router.get('/search/', authorization, async function (req, res) {
+router.get('/search', authorization, async function (req, res) {
   try {
     let feeds = await Feed.find({ news: { $regex: req.body.regex } }).limit(req.body.limit);
     res.status(201).json(feeds);
@@ -41,8 +42,8 @@ router.get('/search/', authorization, async function (req, res) {
 
 router.post('/like/:feedId', authorization, async function (req, res) {
   try {
-    Feed.findOneAndUpdate({ _id: req.params.feedId }, { $push: { likers: req.body.likerId }, $inc: { likesNo: 1 } });
-    res.sendStatus(201);
+    const result = await Feed.findOneAndUpdate({ _id: req.params.feedId }, { $push: { likers: req.body.likerId }, $inc: { likesNo: 1 } });
+    res.status(201).json(result);
   } catch (error) {
     res.status(401).send(error.message);
   }
@@ -50,7 +51,7 @@ router.post('/like/:feedId', authorization, async function (req, res) {
 
 router.post('/comment/:feedId', authorization, async function (req, res) {
   try {
-    Feed.findOneAndUpdate({ _id: req.params.feedId }, { $push: { comments: { commenterId: req.body.commenterId, comment: req.body.comment } }, $inc: { commentsNo: 1 } });
+    let result = await Feed.findOneAndUpdate({ _id: req.params.feedId }, { $push: { comments: { commenterId: req.body.commenterId, comment: req.body.comment } }, $inc: { commentsNo: 1 } });
     res.status(201).json(feeds);
   } catch (error) {
     res.status(401).send(error.message);

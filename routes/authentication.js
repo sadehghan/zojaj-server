@@ -9,7 +9,7 @@ const users = [];
 
 router.get('/', async (req, res, next) => {
     try {
-        users = await User.find().limit(3);
+        const users = await User.find().limit(3);
         res.json(users);
     } catch (error) {
         res.status(401).send(error.message);
@@ -41,15 +41,16 @@ router.post('/signup', async (req, res) => {
 router.post('/login', async (req, res) => {
 
     try {
-        const user = User.findOne({ username: req.body.username });
+        const user = await User.findOne({ username: req.body.username });
         if (user == null) {
             return res.status(400).send(req.body.username + 'not founded');
         }
         if (!await bcrypt.compare(req.body.password, user.password)) {
             res.status(401).send(req.body.username + 'not allowed to login');
         }
-        const accessToken = generateAccessToken(user);
-        const refreshToken = jwt.sign(user, process.env.REFRESH_TOKEN_SECRET)
+        
+        const accessToken = generateAccessToken({ username: user.username, password: user.password });
+        const refreshToken = jwt.sign({ username: user.username, password: user.password }, process.env.REFRESH_TOKEN_SECRET)
         refreshTokens.push(refreshToken);
         return res.json({ accessToken: accessToken, refreshToken: refreshToken });
     } catch (error) {
@@ -84,7 +85,7 @@ router.post('/token', (req, res) => {
 });
 
 function generateAccessToken(user) {
-    return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1m' });
+    return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '10m' });
 }
 
 module.exports = router;
