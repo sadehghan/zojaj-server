@@ -10,6 +10,10 @@ const UserSchema = mongoose.Schema({
         type: String,
         required: true,
     },
+    bookmarkedFeeds: {
+        type: [mongoose.Schema.Types.ObjectId],
+        default: []
+    }
 });
 
 module.exports = mongoose.model('User', UserSchema);
