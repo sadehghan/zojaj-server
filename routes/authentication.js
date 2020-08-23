@@ -5,22 +5,12 @@ const bcrypt = require('bcrypt');
 const User = require('../models/User');
 
 let refreshTokens = [];
-const users = [];
-
-router.get('/', async (req, res, next) => {
-    try {
-        const users = await User.find().limit(3);
-        res.json(users);
-    } catch (error) {
-        res.status(401).send(error.message);
-    }
-});
 
 router.post('/signup', async (req, res) => {
     try {
         const exist = await User.findOne({ username: req.body.username })
         if (exist != null) {
-            return res.status(401).send('Username { ' + req.body.username + ' } exist.');
+            return res.status(406).json({ status: 'failed', message: 'User { ' + req.body.username + ' } is already exist.' });
         }
 
         const salt = await bcrypt.genSalt();
@@ -31,10 +21,10 @@ router.post('/signup', async (req, res) => {
             password: hashpassword
         });
 
-        user.save();
-        res.status(201).send("User " + user.username + " has been created");
+        const result = user.save();
+        return res.status(201).json({ status: 'successful', message: 'User has been created successfully.' });
     } catch (error) {
-        res.status(500).send(error.message);
+        res.status(500).send({ status: 'failed', message: error.message });
     }
 });
 
@@ -43,22 +33,24 @@ router.post('/login', async (req, res) => {
     try {
         const user = await User.findOne({ username: req.body.username });
         if (user == null) {
-            return res.status(400).send(req.body.username + 'not founded');
+            return res.status(404).json({ status: 'failed', message: 'User { ' + req.body.username + ' } not exist.' });
         }
         if (!await bcrypt.compare(req.body.password, user.password)) {
-            res.status(401).send(req.body.username + 'not allowed to login');
+            res.status(401).json({ status: 'failed', message: 'Password is incorrect.' });
         }
-        
+
         const accessToken = generateAccessToken({ username: user.username, password: user.password });
         const refreshToken = jwt.sign({ username: user.username, password: user.password }, process.env.REFRESH_TOKEN_SECRET)
         refreshTokens.push(refreshToken);
-        return res.json({ accessToken: accessToken, refreshToken: refreshToken });
+
+        return res.status(200).json({ status: 'successful', message: 'User {' + req.body.username + ' } has been logged in successfully.', data: { accessToken: accessToken, refreshToken: refreshToken } });
     } catch (error) {
         res.status(500).send(error.message);
     }
 });
 
 router.delete('/logout', (req, res) => {
+    // TODO: is it a good way to remove refresh token? how expire access token ? 
     refreshTokens = refreshTokens.filter(token => token != req.body.token);
     res.sendStatus(204);
 });
@@ -67,20 +59,20 @@ router.post('/token', (req, res) => {
     const refreshToken = req.body.token;
 
     if (refreshToken == null) {
-        return res.sendStatus(401);
+        return res.status(400).json({ status: 'failed', message: 'Token has not been found.' });
     }
 
     if (!refreshTokens.includes(refreshToken)) {
-        return res.sendStatus(403);
+        return res.status(401).json({ status: 'failed', message: 'Unauthorised, the user does not have valid authentication credentials for the target resource.' });
     }
 
-    jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
-        if (err) {
-            return res.sendStatus(403);
+    jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (error, user) => {
+        if (error) {
+            return res.status(401).json({ status: 'failed', message: 'Unauthorised, the user does not have valid authentication credentials for the target resource. [ ' + error.message + ' ]' });
         }
 
         const accessToken = generateAccessToken({ username: user.username, password: user.password });
-        res.json({ accessToken: accessToken })
+        res.status(200).json({ status: 'successful', message: 'Access token has been refreshed successfuly.', data: { accessToken: accessToken } })
     })
 });
 
