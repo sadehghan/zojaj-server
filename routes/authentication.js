@@ -43,7 +43,7 @@ router.post('/login', async (req, res) => {
         const refreshToken = jwt.sign({ username: user.username, password: user.password }, process.env.REFRESH_TOKEN_SECRET)
         refreshTokens.push(refreshToken);
 
-        return res.status(200).json({ status: 'successful', message: 'User {' + req.body.username + ' } has been logged in successfully.', data: { accessToken: accessToken, refreshToken: refreshToken } });
+        return res.status(200).json({ status: 'successful', message: 'User {' + req.body.username + ' } has been logged in successfully.', data: { userId: user._id, accessToken: accessToken, refreshToken: refreshToken } });
     } catch (error) {
         res.status(500).send(error.message);
     }
