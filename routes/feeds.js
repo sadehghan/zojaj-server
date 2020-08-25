@@ -70,9 +70,10 @@ router.post('/bookmark/:feedId', authorization, async function (req, res) {
 router.post('/add/', authorization, async function (req, res) {
   try {
     const feed = new Feed(req.body);
-    feed.save().then(() => res.sendStatus(201));
+    await feed.save();
+    return res.status(201).json({ status: 'successful', message: ' feed successfully added'});
   } catch (error) {
-    res.status(401).send(error.message);
+    return res.status(500).send({ status: 'failed', message: error.message });
   }
 });
 
