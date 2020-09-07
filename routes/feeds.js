@@ -71,7 +71,7 @@ router.post('/add/', authorization, async function (req, res) {
   try {
     const feed = new Feed(req.body);
     await feed.save();
-    return res.status(201).json({ status: 'successful', message: ' feed successfully added'});
+    return res.status(201).json({ status: 'successful', message: ' feed successfully added' });
   } catch (error) {
     return res.status(500).send({ status: 'failed', message: error.message });
   }

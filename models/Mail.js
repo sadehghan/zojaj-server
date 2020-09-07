@@ -21,6 +21,10 @@ const MailSchema = mongoose.Schema({
         type: [mongoose.Schema.Types.ObjectId],
         default: [],
     },
+    importanters: {
+        type: [mongoose.Schema.Types.ObjectId],
+        default: [],
+    },
     created: {
         type: Date,
         default: Date.now,
