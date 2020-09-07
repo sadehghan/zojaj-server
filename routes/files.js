@@ -19,5 +19,12 @@ router.get('/feeds/logos/:source', /*authorization,*/ async function (req, res) 
     }
 });
 
+router.get('/users/avatars/:userId', /*authorization,*/ async function (req, res) {
+    try {
+        res.status(200).sendFile(FILE_ADDRESS + 'users/avatars/' + req.params.userId);
+    } catch (error) {
+        res.status(500).send({ status: 'failed', message: error.message });
+    }
+});
 
 module.exports = router;
