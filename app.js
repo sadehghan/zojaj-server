@@ -12,6 +12,7 @@ var authRouter = require('./routes/authentication');
 var feedsRouter = require('./routes/feeds');
 var filesRouter = require('./routes/files');
 var mailsRouter = require('./routes/mails');
+var coursesRouter = require('./routes/courses');
 
 var app = express();
 
@@ -27,6 +28,7 @@ app.use('/auth', authRouter);
 app.use('/feeds', feedsRouter);
 app.use('/files', filesRouter);
 app.use('/mails', mailsRouter);
+app.use('/courses', coursesRouter);
 
 mongoose.connect('mongodb://127.0.0.1:27017', { useUnifiedTopology: true, useNewUrlParser: true })
     .then(() => console.log('Connect to mongodb'))

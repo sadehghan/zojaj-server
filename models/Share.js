@@ -38,7 +38,7 @@ const ShareSchema = mongoose.Schema({
                     type: String,
                     enum: ['pdf', 'image', 'text', 'video'],
                 },
-                contentUrl: String,
+                id: String,
             }
         ],
         default: [],

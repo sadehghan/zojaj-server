@@ -33,7 +33,8 @@ router.post('/top', authorization, async function (req, res) {
 
 router.post('/search', authorization, async function (req, res) {
   try {
-    const feeds = await Feed.find({ news: { $regex: req.body.regex } }).limit(req.body.limit);
+    const re = new RegExp(req.body.regex);
+    const feeds = await Feed.find({ news: { $regex: re } }).limit(req.body.limit);
     res.status(200).json({ status: 'successful', message: 'fetched match feeds successfully.', data: feeds });
   } catch (error) {
     res.status(500).send({ status: 'failed', message: error.message });
@@ -67,11 +68,11 @@ router.post('/bookmark/:feedId', authorization, async function (req, res) {
   }
 });
 
-router.post('/add/', authorization, async function (req, res) {
+router.post('/add', authorization, async function (req, res) {
   try {
     const feed = new Feed(req.body);
     await feed.save();
-    return res.status(201).json({ status: 'successful', message: ' feed successfully added' });
+    return res.status(201).json({ status: 'successful', message: 'feed successfully added' });
   } catch (error) {
     return res.status(500).send({ status: 'failed', message: error.message });
   }

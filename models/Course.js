@@ -19,16 +19,13 @@ const CourseSchema = mongoose.Schema({
                 heading: String,
                 about: String
             }
-        ]
+        ],
+        default: []
     },
     contentType: {
         type: String,
         enum: ['pdf', 'image', 'text', 'video'],
-        required: true,
-    },
-    contentUrl: {
-        type: String,
-        required: true,
+        default: 'pdf'
     },
     created: {
         type: Date,

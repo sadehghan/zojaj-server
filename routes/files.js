@@ -1,7 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const authorization = require('../middlewares/authorization');
-const FILE_ADDRESS = "/home/farhangi/projects/zojaj/zojaj-server/public/";
+//const FILE_ADDRESS = "/home/farhangi/projects/zojaj/zojaj-server/public/";
+const FILE_ADDRESS = "/home/samoon/Documents/projects/react-native/zojaj-server/public/";
 
 router.get('/feeds/images/:feedId', /*authorization,*/ async function (req, res) {
     try {
